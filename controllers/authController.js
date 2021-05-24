@@ -106,7 +106,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   if (!token) {
     return next(
       new AppError('You are not logged in!. Please login to gain access', 401)
-    ); // 401 - Unauthorised
+    ); // 401 - Unauthorized
   }
   // Token verification
   const decoded = verifyAccessToken(token.toString());
@@ -138,7 +138,7 @@ exports.isLoggedIn = async (req, res, next) => {
       // Token verification
       const decoded = await promisify(jwt.verify)(
         req.cookies.jwt,
-        process.env.BENTO_TEST_ACCESS_TOKEN_SECRET
+        process.env.CBA_ACCESS_TOKEN_SECRET
       );
 
       // Check if user still exists
