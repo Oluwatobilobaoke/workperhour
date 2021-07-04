@@ -82,7 +82,7 @@ exports.adminCreateAdmin = catchAsync(async (req, res, next) => {
   const options = {
     email: req.body.email,
     subject: 'Signup Successful!',
-    message: "Welcome to COG, we're glad to have you 🎉🙏",
+    message: "Welcome to WPH, we're glad to have you 🎉🙏",
   };
 
   await sendEmail(options);
