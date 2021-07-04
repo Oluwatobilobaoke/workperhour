@@ -1,10 +1,21 @@
 const AppUser = require('../models/appUserModel');
+const WorkHour =  require('../models/workHoursModel');
 const catchAsync = require('../utils/libs/catchAsync');
 const AppError = require('../utils/libs/appError');
 const sendEmail = require('../utils/libs/email');
 
 exports.registerAppUser = catchAsync(async (req, res, next) => {
-    const newAppUser = await AppUser.create({
+    
+    const userExists = AppUser.findOne({ email: req.body.email });
+    const userExist = AppUser.findOne({ appUserFingerPrintId: req.body.appUserFingerPrintId });
+
+    console.log({userExists, userExist});
+
+    if (userExists !== null || userExist !== null) {
+      return next(new AppError('App user Exists', 404));
+    }
+
+    const appUser = await AppUser.create({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
@@ -13,8 +24,9 @@ exports.registerAppUser = catchAsync(async (req, res, next) => {
       bankName: req.body.bankName,
       appUserFingerPrintId: req.body.appUserFingerPrintId,
       appUserType: req.body.appUserType,
-      ratePerHour: req.body.ratePerHour,
+      ratePerHour: req.body.ratePerHour || 0,
     });
+
 
     const options = {
       email: req.body.email,
@@ -26,34 +38,51 @@ exports.registerAppUser = catchAsync(async (req, res, next) => {
 
     return res.status(200).json({
       status: 'success',
-      message: `You have successfully placed ${req.body.email} onboard`,
+      message: `Welcome OnBoard, ${req.body.firstName}`,
+      data: {
+        appUser
+      },
     });
 })
 
 exports.getAllAppUser = catchAsync(async (req, res, next) => {
-  const appusers = await AppUser.find();
 
-  if(!appusers) return res.status(200).json({ status: 'success', message: 'no app us'})
+  const { page, limit} = req.query;
+
+  const appUsers = await AppUser.find()
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .exec();
+
+  // get total documents in the Posts collection 
+  const count = await AppUser.countDocuments();
+
+
+  if(!appUsers) return res.status(200).json({ status: 'success', message: 'no app us'})
 
   return res.status(200).json({
     status: 'success',
-    appusers
+    data: {
+      appUsers,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page
+    } 
   })
 })
 
 exports.getAppUser = catchAsync(async (req, res, next) => {
     let query = AppUser.findById(req.params.id);
 
-    const doc = await query;
+    const appUser = await query;
 
-    if (!doc) {
-      return next(new AppError('No document with that ID not found', 404));
+    if (!appUser) {
+      return next(new AppError('No App user with such ID not found', 404));
     }
 
     res.status(200).json({
       status: 'success',
       data: {
-        data: doc,
+        appUser,
       },
     });
   });
@@ -62,7 +91,7 @@ exports.deleteAppUser = catchAsync(async (req, res, next) => {
     const doc = await AppUser.findByIdAndDelete(req.params.id);
 
     if (!doc)
-      return next(new AppError('No document with that ID not found', 404));
+      return next(new AppError('No App User with such ID not found', 404));
 
     res.status(204).json({
       status: 'success',
@@ -72,19 +101,19 @@ exports.deleteAppUser = catchAsync(async (req, res, next) => {
   });
 
 exports.updateAppUser = catchAsync(async (req, res, next) => {
-    const doc = await AppUser.findByIdAndUpdate(req.params.id, req.body, {
+    const appUser = await AppUser.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
 
-    if (!doc) {
-      return next(new AppError('No document with that ID not found', 404));
+    if (!appUser) {
+      return next(new AppError('No App user with such ID not found', 404));
     }
 
     res.status(200).json({
       status: 'success',
       data: {
-        data: doc,
+        appUser,
       },
     });
   });

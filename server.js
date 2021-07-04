@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 // Application needs to be crashed then a tool will be needed to restart the APP
 process.on('uncaughtException', (err) => {
   console.log('UNCAUGHT EXCEPTION!...');
+  console.log({err});
   console.log(err.name, err.message);
   process.exit();
 });

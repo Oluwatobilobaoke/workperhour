@@ -1,5 +1,3 @@
-const { setupMaster } = require('cluster');
-const crypto = require('crypto');
 const mongoose = require('mongoose');
 const AppError = require('../utils/libs/appError');
 
@@ -9,13 +7,13 @@ const appuserSchema = new mongoose.Schema({
     type: String,
     lowercase: true,
     require: [true, 'Please enter your name!'],
-    minlength: 6,
+    minlength: 3,
   },
   lastName: {
     type: String,
     lowercase: true,
     require: [true, 'Please enter your name!'],
-    minlength: 6,
+    minlength: 3,
   },
   email: {
     type: String,
@@ -56,6 +54,12 @@ const appuserSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
+// Cascade delete work hours when an App user is deleted
+appuserSchema.pre('remove', async function (next) {
+  console.log(`Work Hours / Attendance are being removed for this user ${this._id}-${this.email}`);
+  await this.model('WorkHour').deleteMany({ appuser: this._id });
+  next();
+});
 
 const AppUser = mongoose.model('AppUser', appuserSchema);
 

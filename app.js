@@ -45,9 +45,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(mongoSanitize()); // Checks the request headers, query strings, params for malicious codes
 
 const userRouter = require('./routes/userRoutes');
+const appUserRouter = require('./routes/appUserRoutes');
+const workHourRouter = require('./routes/workHourRoutes');
 
 //   Routes Middleware
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/appusers', appUserRouter);
+app.use('/api/v1/workhours', workHourRouter);
 
 // Unhandled Routes
 app.all('*', (req, res, next) => {
