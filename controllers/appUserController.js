@@ -11,7 +11,7 @@ exports.registerAppUser = catchAsync(async (req, res, next) => {
 
     console.log({userExists, userExist});
 
-    if (userExists !== null || userExist !== null) {
+    if (!userExists || !userExist) {
       return next(new AppError('App user Exists', 404));
     }
 
