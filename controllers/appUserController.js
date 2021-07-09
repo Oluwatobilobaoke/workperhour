@@ -9,7 +9,7 @@ exports.registerAppUser = catchAsync(async (req, res, next) => {
     const userExists = AppUser.findOne({ email: req.body.email });
     const userExist = AppUser.findOne({ appUserFingerPrintId: req.body.appUserFingerPrintId });
 
-    console.log({userExists, userExist});
+    //  console.log({userExists, userExist});
 
     if (!userExists || !userExist) {
       return next(new AppError('App user Exists', 404));
@@ -50,6 +50,56 @@ exports.getAllAppUser = catchAsync(async (req, res, next) => {
   const { page, limit} = req.query;
 
   const appUsers = await AppUser.find()
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .exec();
+
+  // get total documents in the Posts collection 
+  const count = await AppUser.countDocuments();
+
+
+  if(!appUsers) return res.status(200).json({ status: 'success', message: 'no app us'})
+
+  return res.status(200).json({
+    status: 'success',
+    data: {
+      appUsers,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page
+    } 
+  })
+})
+
+exports.getAllStudentAppUser = catchAsync(async (req, res, next) => {
+
+  const { page, limit} = req.query;
+
+  const appUsers = await AppUser.find({ appUserType: "student"})
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .exec();
+
+  // get total documents in the Posts collection 
+  const count = await AppUser.countDocuments();
+
+
+  if(!appUsers) return res.status(200).json({ status: 'success', message: 'no app us'})
+
+  return res.status(200).json({
+    status: 'success',
+    data: {
+      appUsers,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page
+    } 
+  })
+})
+
+exports.getAllWorkerAppUser = catchAsync(async (req, res, next) => {
+
+  const { page, limit} = req.query;
+
+  const appUsers = await AppUser.find({ appUserType: "worker"})
     .limit(limit * 1)
     .skip((page - 1) * limit)
     .exec();

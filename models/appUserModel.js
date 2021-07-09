@@ -18,6 +18,7 @@ const appuserSchema = new mongoose.Schema({
   email: {
     type: String,
     lowercase: true,
+    unique: true,
     require: [true, 'Please enter your email address!'],
     minlength: 8,
   },
@@ -42,6 +43,7 @@ const appuserSchema = new mongoose.Schema({
   },
   appUserFingerPrintId: {
     type: String,
+    unique: true,
     require: [true, 'Please use the fingerprintscanner!'],
   },
   appUserType: {

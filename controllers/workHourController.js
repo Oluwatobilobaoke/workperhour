@@ -2,35 +2,41 @@ const WorkHour =  require('../models/workHoursModel');
 const AppUser = require('../models/appUserModel');
 const catchAsync = require('../utils/libs/catchAsync');
 const AppError = require('../utils/libs/appError');
+const moment = require('moment');
 
 
 exports.clockIn = catchAsync(async (req, res, next) => {
 
-  const { fingerPrintId,  } = req.body;
+  const { fingerPrintId  } = req.body;
 
-  const fingerCheck = AppUser.findOne({ appUserFingerPrintId: fingerPrintId }).exec();
+  const fingerCheck = await AppUser.findOne({ appUserFingerPrintId: fingerPrintId }).exec();
 
   if (!fingerCheck) {
-    return next(new AppError('You are unauthorized', 401));
+    return next(new AppError('You are not registered', 401));
   }
 
-  const userCheck  = await AppUser.findById(fingerCheck._id);
-  if (!userCheck) return next(new AppError('Invalid User', 401));
+  // console.log({fingerCheck});
+
+  const userHasActiveSession = await WorkHour.findOne({ appUserFingerPrintId: fingerPrintId, isActive: true }).exec();
+
+  console.log({userHasActiveSession});
+
+
+  if (userHasActiveSession) return next(new AppError('User still has an active session', 401));
 
     const name  = `${fingerCheck.firstName} ${fingerCheck.lastName}`; 
 
     await WorkHour.create({ 
       fullName: name,
-      appUserFingerPrintId: fingerCheck,
+      appUserFingerPrintId: fingerCheck.appUserFingerPrintId,
       appuser: fingerCheck._id,
       timeIn: new Date(),
-      status: 'active',
       isActive: true  
     })
 
     return res.status(200).json({
       status: 'success',
-      message: `Welcome, ${userCheck.firstName}`,
+      message: `Welcome, ${fingerCheck.firstName}`,
     });
 })
 
@@ -40,43 +46,50 @@ exports.clockOut = catchAsync(async (req, res, next) => {
 
   const { fingerPrintId  } = req.body;
 
-  const fingerCheck = AppUser.findOne({ appUserFingerPrintId: fingerPrintId }).exec();
+  const fingerCheck = await AppUser.findOne({ appUserFingerPrintId: fingerPrintId }).exec();
 
   if (!fingerCheck) {
     return next(new AppError('You are unauthorized', 401));
   }
 
-  const workHourObj  = await WorkHour.findOne({ appuser: fingerCheck._id });
-  if (!userCheck) return next(new AppError('Invalid User', 401));
+  const workHourObj  = await WorkHour.findOne({ appuser: fingerCheck._id, isActive: true });
+  if (!workHourObj) return next(new AppError('User does not have a session active', 401));
 
-  const query = { appuser: fingerCheck._id, isActive: true }
 
       let outTime = new Date();
 
       const a = moment(workHourObj.timeIn);
       const b = moment(outTime);
 
-      const hoursWorked = (b.diff(a, 'hours'));
+      const minutesWorked = (b.diff(a, 'minutes'));
+
+      console.log({outTime}, {a}, {b}, {minutesWorked});
 
         if (fingerCheck.appUserType == "student") {
           amount = 0;
         } else {
+          const hoursWorked = minutesWorked / 60 ;
+          console.log({hoursWorked});
           amount = parseInt(hoursWorked * fingerCheck.ratePerHour);
+          console.log(amount);
         }
   
 
-      WorkHour.findOneAndUpdate(
-        query, 
-        { 
-          timeOut: outTime,
-          isActive: false,
-          amount: amount
-        })
+     const reqBody = { 
+      timeOut: outTime,
+      isActive: false,
+      amount: amount
+     }
+
+        await WorkHour.findByIdAndUpdate(workHourObj._id, reqBody, {
+          new: true,
+          runValidators: true,
+        });
       
 
     return res.status(200).json({
       status: 'success',
-      message: `GoodBye, ${userCheck.firstName}`,
+      message: `GoodBye, ${fingerCheck.firstName}`,
     });
 })
 

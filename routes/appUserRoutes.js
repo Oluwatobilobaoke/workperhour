@@ -9,6 +9,8 @@ router.post('/onboard', appUserController.registerAppUser);
 router.use(authController.protect);
 
 router.get('/', appUserController.getAllAppUser);
+router.get('/student', appUserController.getAllStudentAppUser);
+router.get('/worker', appUserController.getAllWorkerAppUser);
 router.get('/:id', appUserController.getAppUser);
 router.patch('/update/:id', appUserController.updateAppUser);
 router.delete('/:id', appUserController.deleteAppUser);

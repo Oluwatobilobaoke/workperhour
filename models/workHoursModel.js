@@ -14,24 +14,20 @@ const workhourSchema = new mongoose.Schema({
     require: [true, 'Please enter user ID!'],
   },
   timeIn: {
-    type:String,
+    type: String,
     default:new Date(),
   },
   timeOut: {
-    type:String,
-  },
-  status:{ 
-    type:String,
-    required:true
+    type: String,
   },
   isActive: {
     type: Boolean,
   },
   amount: {
-    type:String,
+    type: String,
   },
   paymentStatus: {
-    type:String,
+    type: String,
     default: "pending",
   }
 }, { timestamps: true });
