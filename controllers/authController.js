@@ -240,13 +240,13 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   // Get user from collection
   const user = await User.findById(req.user.id).select('+password');
 
-  // Check if POSTed password is correct
+  // Check if posted password is correct
   if (!(await user.correctPassword(req.body.currentPassword, user.password))) {
     return next(new AppError('Password Incorrect. Try again!!', 401));
   }
 
   // Update Password
-  user.password = req.body.password;
+  user.password = req.body.newPassword;
   await user.save();
 
   // Log user in -- send JWT

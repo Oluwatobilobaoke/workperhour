@@ -14,6 +14,6 @@ router.patch('/resetPassword/:token', authController.resetPassword);
 router.use(authController.protect);
 
 // Current User Routes
-router.patch('/updateMyPassword', authController.updatePassword);
+router.patch('/updatePassword', authController.updatePassword);
 
 module.exports = router;
