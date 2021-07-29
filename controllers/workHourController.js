@@ -123,13 +123,14 @@ exports.getuserWorkHours = catchAsync(async (req, res, next) => {
 
   const { page, limit} = req.query;
   const { appUserId } = req.body;
+  
 
   let workHours = await WorkHour.find({appuser: appUserId })
     .limit(limit * 1)
     .skip((page - 1) * limit)
     .exec();
-
-  // get total documents in the collection 
+  
+    // get total documents in the collection 
   const count = await WorkHour.countDocuments();
 
   if(!workHours) return res.status(200).json({ status: 'success', message: 'No Work Hours'})
@@ -147,11 +148,12 @@ exports.getuserWorkHours = catchAsync(async (req, res, next) => {
 
 
 exports.getWorkHour = catchAsync(async (req, res, next) => {
+
   let query = WorkHour.findById(req.params.id);
 
   const workHour = await query;
 
-  if (!appUser) {
+  if (!workHour) {
     return next(new AppError('No Doc with such ID not found', 404));
   }
 
@@ -177,19 +179,19 @@ exports.deleteWorkHour = catchAsync(async (req, res, next) => {
 });
 
 exports.updateWorkHour = catchAsync(async (req, res, next) => {
-  const workHour = await AppUser.findByIdAndUpdate(req.params.id, req.body, {
+  const workHour = await WorkHour.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
 
-  if (!appUser) {
-    return next(new AppError('No App user with such ID not found', 404));
+  if (!workHour) {
+    return next(new AppError('No App user with such  work ID found', 404));
   }
 
   res.status(200).json({
     status: 'success',
     data: {
-      appUser,
+      workHour,
     },
   });
 });
