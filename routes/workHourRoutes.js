@@ -8,7 +8,7 @@ const authController = require('../controllers/authController');
 router.post('/clock-in', workHourController.clockIn);
 router.post('/clock-out', workHourController.clockOut);
 
-// router.use(authController.protect);
+router.use(authController.protect);
 
 router.get('/', workHourController.getAllWorkHours);
 router.get('/user', workHourController.getuserWorkHours);
