@@ -11,7 +11,7 @@ router.post('/clock-out', workHourController.clockOut);
 router.use(authController.protect);
 
 router.get('/', workHourController.getAllWorkHours);
-router.get('/user', workHourController.getuserWorkHours);
+router.get('/user/:appUserId', workHourController.getuserWorkHours);
 router.get('/user/:id', workHourController.getWorkHour);
 router.patch('/update/:id', workHourController.updateWorkHour);
 router.delete('/:id', workHourController.deleteWorkHour);

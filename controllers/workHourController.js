@@ -122,7 +122,7 @@ exports.getAllWorkHours = catchAsync(async (req, res, next) => {
 exports.getuserWorkHours = catchAsync(async (req, res, next) => {
 
   const { page, limit} = req.query;
-  const { appUserId } = req.body;
+  const { appUserId } = req.params;
   
 
   let workHours = await WorkHour.find({appuser: appUserId })
