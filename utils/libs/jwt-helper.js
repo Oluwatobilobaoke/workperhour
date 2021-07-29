@@ -6,7 +6,7 @@ module.exports = {
     const payload = data;
     const options = {
       expiresIn: process.env.CBA_ACCESS_TOKEN_SECRET_EXPIRES_IN,
-      issuer: 'Mr Hosted Clown',
+      issuer: 'Workperhour',
       audience: '',
     };
     const token = JWT.sign(payload, secret, options);
