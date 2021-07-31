@@ -68,9 +68,9 @@ exports.login = catchAsync(async (req, res, next) => {
 exports.adminCreateAdmin = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
 
-  if (user) {
-    return next(new AppError('Email already taken', 400));
-  }
+  // if (user) {
+  //   return next(new AppError('Email already taken', 400));
+  // }
 
   const newUser = await User.create({
     email: req.body.email,

@@ -1,5 +1,7 @@
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const chalk = require('chalk');
+
 
 // UNCAUGHT EXCEPTIONS
 // Application needs to be crashed then a tool will be needed to restart the APP
