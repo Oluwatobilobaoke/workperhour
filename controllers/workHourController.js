@@ -7,9 +7,9 @@ const moment = require('moment');
 
 exports.clockIn = catchAsync(async (req, res, next) => {
 
-  const { fingerPrintId  } = req.body;
+  const { faceId  } = req.params;
 
-  const fingerCheck = await AppUser.findOne({ appUserFingerPrintId: fingerPrintId }).exec();
+  const fingerCheck = await AppUser.findOne({ appUserFingerPrintId: faceId }).exec();
 
   if (!fingerCheck) {
     return next(new AppError('You are not registered', 401));
@@ -17,7 +17,7 @@ exports.clockIn = catchAsync(async (req, res, next) => {
 
   // console.log({fingerCheck});
 
-  const userHasActiveSession = await WorkHour.findOne({ appUserFingerPrintId: fingerPrintId, isActive: true }).exec();
+  const userHasActiveSession = await WorkHour.findOne({ appUserFingerPrintId: faceId, isActive: true }).exec();
 
   console.log({userHasActiveSession});
 
@@ -44,17 +44,19 @@ exports.clockOut = catchAsync(async (req, res, next) => {
 
   let amount;
 
-  const { fingerPrintId  } = req.body;
+  const { faceId  } = req.params;
 
-  const fingerCheck = await AppUser.findOne({ appUserFingerPrintId: fingerPrintId }).exec();
+  const fingerCheck = await AppUser.findOne({ appUserFingerPrintId: faceId }).exec();
+  console.log({fingerCheck});
 
   if (!fingerCheck) {
-    return next(new AppError('You are unauthorized', 401));
+    return next(new AppError('You are not registered', 401));
   }
 
   const workHourObj  = await WorkHour.findOne({ appuser: fingerCheck._id, isActive: true });
-  if (!workHourObj) return next(new AppError('User does not have a session active', 401));
-
+  console.log(workHourObj);
+ 
+  if (!workHourObj) return next(new AppError('User does not an active session', 401));
 
       let outTime = new Date();
 
