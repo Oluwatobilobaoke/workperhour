@@ -6,20 +6,16 @@ const appuserSchema = new mongoose.Schema({
   firstName: {
     type: String,
     lowercase: true,
-    require: [true, 'Please enter your name!'],
     minlength: 3,
   },
   lastName: {
     type: String,
     lowercase: true,
-    require: [true, 'Please enter your name!'],
     minlength: 3,
   },
   email: {
     type: String,
     lowercase: true,
-    unique: true,
-    require: [true, 'Please enter your email address!'],
     minlength: 8,
   },
   accountType: {
@@ -44,12 +40,11 @@ const appuserSchema = new mongoose.Schema({
   appUserFingerPrintId: {
     type: String,
     unique: true,
-    require: [true, 'Please use the fingerprintscanner!'],
+    require: [true, 'Please use the face Id scanner!'],
   },
   appUserType: {
     type: String,
     enum: ['worker', 'student'],
-    require: [true, 'Please select user type!'],
   },
   ratePerHour: {
     type: Number,

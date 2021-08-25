@@ -4,15 +4,13 @@ const router = express.Router();
 const appUserController = require('../controllers/appUserController');
 const authController = require('../controllers/authController');
 
-router.post('/onboard', appUserController.registerAppUser);
+router.post('/onboard/:faceId', appUserController.registerAppUser);
 
-router.use(authController.protect);
-
-router.get('/', appUserController.getAllAppUser);
-router.get('/student', appUserController.getAllStudentAppUser);
-router.get('/worker', appUserController.getAllWorkerAppUser);
-router.get('/:id', appUserController.getAppUser);
-router.patch('/update/:id', appUserController.updateAppUser);
-router.delete('/:id', appUserController.deleteAppUser);
+router.get('/', authController.protect, appUserController.getAllAppUser);
+router.get('/student', authController.protect, appUserController.getAllStudentAppUser);
+router.get('/worker', authController.protect, appUserController.getAllWorkerAppUser);
+router.get('/:id', authController.protect, appUserController.getAppUser);
+router.patch('/update/:id', authController.protect, appUserController.updateAppUser);
+router.delete('/:id', authController.protect, appUserController.deleteAppUser);
 
 module.exports = router;

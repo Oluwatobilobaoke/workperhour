@@ -5,40 +5,33 @@ const AppError = require('../utils/libs/appError');
 const sendEmail = require('../utils/libs/email');
 
 exports.registerAppUser = catchAsync(async (req, res, next) => {
+
+  const { faceId } = req.params;
     
-    const userExists = AppUser.findOne({ email: req.body.email });
-    const userExist = AppUser.findOne({ appUserFingerPrintId: req.body.appUserFingerPrintId });
+    const userExist = await AppUser.findOne({ appUserFingerPrintId: faceId });
 
-    //  console.log({userExists, userExist});
+    console.log({ userExist});
 
-    if (!userExists || !userExist) {
+    if (userExist) {
       return next(new AppError('App user Exists', 404));
     }
 
     const appUser = await AppUser.create({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      accountType: req.body.accountType,
-      accountNumber: req.body.accountNumber,
-      bankName: req.body.bankName,
-      appUserFingerPrintId: req.body.appUserFingerPrintId,
-      appUserType: req.body.appUserType,
-      ratePerHour: req.body.ratePerHour || 0,
+      appUserFingerPrintId: faceId,
     });
 
 
-    const options = {
-      email: req.body.email,
-      subject: 'OnBoarding Successful!',
-      message: "Welcome to WPH,we're glad to have you 🎉🙏",
-    };
+    // const options = {
+    //   email: req.body.email,
+    //   subject: 'OnBoarding Successful!',
+    //   message: "Welcome to WPH,we're glad to have you 🎉🙏",
+    // };
 
-    await sendEmail(options);
+    // await sendEmail(options);
 
     return res.status(200).json({
       status: 'success',
-      message: `Welcome OnBoard, ${req.body.firstName}`,
+      message: `Welcome OnBoard`,
       data: {
         appUser
       },
