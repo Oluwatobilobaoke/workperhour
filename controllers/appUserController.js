@@ -13,7 +13,7 @@ exports.registerAppUser = catchAsync(async (req, res, next) => {
     console.log({ userExist});
 
     if (userExist) {
-      return next(new AppError('App user Exists', 404));
+      return next(new AppError('App user Exists', 400));
     }
 
     const appUser = await AppUser.create({
@@ -45,6 +45,7 @@ exports.getAllAppUser = catchAsync(async (req, res, next) => {
   const appUsers = await AppUser.find()
     .limit(limit * 1)
     .skip((page - 1) * limit)
+    .sort({updatedAt: -1})
     .exec();
 
   // get total documents in the Posts collection 
@@ -70,6 +71,7 @@ exports.getAllStudentAppUser = catchAsync(async (req, res, next) => {
   const appUsers = await AppUser.find({ appUserType: "student"})
     .limit(limit * 1)
     .skip((page - 1) * limit)
+    .sort({updatedAt: -1})
     .exec();
 
   // get total documents in the Posts collection 
@@ -95,6 +97,7 @@ exports.getAllWorkerAppUser = catchAsync(async (req, res, next) => {
   const appUsers = await AppUser.find({ appUserType: "worker"})
     .limit(limit * 1)
     .skip((page - 1) * limit)
+    .sort({updatedAt: -1})
     .exec();
 
   // get total documents in the Posts collection 

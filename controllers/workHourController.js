@@ -103,6 +103,7 @@ exports.getAllWorkHours = catchAsync(async (req, res, next) => {
   let workHours = await WorkHour.find()
     .limit(limit * 1)
     .skip((page - 1) * limit)
+    .sort({updatedAt: -1})
     .exec();
 
   // get total documents in the collection 
@@ -130,6 +131,7 @@ exports.getuserWorkHours = catchAsync(async (req, res, next) => {
   let workHours = await WorkHour.find({appuser: appUserId })
     .limit(limit * 1)
     .skip((page - 1) * limit)
+    .sort({updatedAt: -1})
     .exec();
   
     // get total documents in the collection 
