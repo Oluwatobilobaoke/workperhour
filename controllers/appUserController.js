@@ -12,9 +12,11 @@ exports.registerAppUser = catchAsync(async (req, res, next) => {
 
     console.log({ userExist});
 
-    if (userExist) {
-      return next(new AppError('App user Exists', 400));
-    }
+    // if (userExist) {
+    //   return next(new AppError('App user Exists', 400));
+    // }
+    if (userExist) 
+      return res.status(200).json({ status: 'success', message: 'App User Exist , Clocked In'})
 
     const appUser = await AppUser.create({
       appUserFingerPrintId: faceId,
