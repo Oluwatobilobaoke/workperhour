@@ -3,33 +3,99 @@ const WorkHour =  require('../models/workHoursModel');
 const catchAsync = require('../utils/libs/catchAsync');
 const AppError = require('../utils/libs/appError');
 const sendEmail = require('../utils/libs/email');
+const moment = require('moment');
+
 
 exports.registerAppUser = catchAsync(async (req, res, next) => {
 
   const { faceId } = req.params;
     
-    const userExist = await AppUser.findOne({ appUserFingerPrintId: faceId });
+    const fingerCheck = await AppUser.findOne({ appUserFingerPrintId: faceId });
 
-    console.log({ userExist});
+    if (fingerCheck.status === 'suspended') {
+      return next(new AppError('User  suspended', 400));
+    }
 
-    // if (userExist) {
-    //   return next(new AppError('App user Exists', 400));
-    // }
-    if (userExist) 
-      return res.status(200).json({ status: 'success', message: 'App User Exist , Clocked In'})
+    console.log({ fingerCheck});
 
+    if (fingerCheck) {
+      // if user exists check if there is an active session if yes, clock them out, else clock in
+      const userHasActiveSession = await WorkHour.findOne({ appUserFingerPrintId: faceId, isActive: true }).exec();
+
+      console.log({userHasActiveSession});
+
+      if (userHasActiveSession) { 
+        // clock out
+        let outTime = new Date();
+
+        const a = moment(userHasActiveSession.timeIn);
+        const b = moment(outTime);
+
+        const minutesWorked = (b.diff(a, 'minutes'));
+
+        console.log({outTime}, {a}, {b}, {minutesWorked});
+
+        if (fingerCheck.appUserType == "student") {
+          amount = 0;
+        } else {
+          const hoursWorked = minutesWorked / 60 ;
+          console.log({hoursWorked});
+          amount = parseInt(hoursWorked * fingerCheck.ratePerHour) || 3000;
+          console.log(amount);
+        }
+  
+
+          const reqBody = { 
+            timeOut: outTime,
+            isActive: false,
+            amount: amount
+          }
+
+          const updateClockOut = await WorkHour.findByIdAndUpdate(userHasActiveSession._id, reqBody, {
+            new: true,
+            runValidators: true,
+          });
+          
+          if (!updateClockOut) {
+            return next(new AppError('Could not clock Out user', 500));
+          }
+
+
+          return res.status(200).json({
+            status: 'success',
+            message: `User has been clocked out successfully`,
+          });
+
+      } 
+
+      // if user has no active session, clock them in
+      const name  = `${fingerCheck.firstName} ${fingerCheck.lastName}`; 
+
+      const clockedInUser = await WorkHour.create({ 
+        fullName: name,
+        appUserFingerPrintId: fingerCheck.appUserFingerPrintId,
+        appuser: fingerCheck._id,
+        timeIn: new Date(),
+        isActive: true  
+      })
+
+      console.log({clockedInUser});
+
+
+      if (!clockedInUser) {
+        return next(new AppError('Could not clock in user, Update User Information', 500));
+      }
+  
+      return res.status(200).json({
+        status: 'success',
+        message: `User Clocked In Successfully`,
+      });
+
+    }
+  
     const appUser = await AppUser.create({
       appUserFingerPrintId: faceId,
     });
-
-
-    // const options = {
-    //   email: req.body.email,
-    //   subject: 'OnBoarding Successful!',
-    //   message: "Welcome to WPH,we're glad to have you 🎉🙏",
-    // };
-
-    // await sendEmail(options);
 
     return res.status(200).json({
       status: 'success',
