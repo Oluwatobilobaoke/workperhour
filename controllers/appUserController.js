@@ -12,9 +12,15 @@ exports.registerAppUser = catchAsync(async (req, res, next) => {
     
     const fingerCheck = await AppUser.findOne({ appUserFingerPrintId: faceId });
 
-    if (fingerCheck.status === 'suspended') {
-      return next(new AppError('User  suspended', 400));
+    console.log({fingerCheck});
+
+    if (fingerCheck) {
+      if (fingerCheck.status === 'suspended') {
+        return next(new AppError('User  suspended', 400));
+      }
     }
+
+    
 
     console.log({ fingerCheck});
 
